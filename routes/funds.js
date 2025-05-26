@@ -18,18 +18,21 @@ router.get('/', async (req, res) => {
 
 // POST /funds - Office submits a fund request
 router.post('/', async (req, res) => {
-  const { office, amount, purpose, fiscalYear } = req.body;
+  const { title, description, project, amount, fiscalYear, officeName, ministryName } = req.body;
 
-  if (!office || !amount || !purpose || !fiscalYear) {
+  if (!title || !description || !project || !amount || !fiscalYear || !officeName || !ministryName) {
     return res.status(400).json({ error: 'All fields are required' });
   }
 
   try {
     const newRequest = {
-      office,
+      title,
+      description,
+      project,
       amount,
-      purpose,
       fiscalYear,
+      officeName,
+      ministryName,
       status: 'pending',
       timestamp: new Date()
     };

@@ -1,5 +1,3 @@
-
-
 const express = require('express');
 const router = express.Router();
 const admin = require('firebase-admin');
@@ -30,6 +28,31 @@ router.post('/', async (req, res) => {
           office: d.office,
           purpose: d.purpose,
           status: d.status,
+          fiscalYear: d.fiscalYear,
+          timestamp: d.timestamp?.toDate().toLocaleDateString() || 'N/A'
+        };
+      });
+
+      return res.json(data);
+    } else if (reportType === 'Expenditures') {
+      let query = db.collection('funds')
+        .where('status', '==', 'approved');
+
+      if (office) query = query.where('office', '==', office);
+      if (fiscalYear) query = query.where('fiscalYear', '==', fiscalYear);
+      if (dateRange?.start && dateRange?.end) {
+        query = query.where('timestamp', '>=', new Date(dateRange.start));
+        query = query.where('timestamp', '<=', new Date(dateRange.end));
+      }
+
+      const snapshot = await query.get();
+      const data = snapshot.docs.map(doc => {
+        const d = doc.data();
+        return {
+          amount: d.amount,
+          office: d.office,
+          project: d.project,
+          description: d.description,
           fiscalYear: d.fiscalYear,
           timestamp: d.timestamp?.toDate().toLocaleDateString() || 'N/A'
         };

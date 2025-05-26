@@ -11,6 +11,7 @@ const ministryRoutes = require('./routes/ministries');
 const budgetRoutes = require('./routes/budgets');
 const officeRoutes = require('./routes/offices');
 const reportRoutes = require('./routes/reports');
+const projectRoutes = require('./routes/projects');
 
 app.use(express.json());
 app.use('/users', userRoutes);
@@ -20,6 +21,7 @@ app.use('/ministries', ministryRoutes);
 app.use('/budgets', budgetRoutes);
 app.use('/offices', officeRoutes);
 app.use('/reports', reportRoutes);
+app.use('/projects', projectRoutes);
 
 const PORT = 2000;
 app.listen(PORT, () => {
