@@ -1,6 +1,3 @@
-
-
-
 const express = require('express');
 const router = express.Router();
 const admin = require('firebase-admin');
@@ -15,16 +12,33 @@ router.post('/', async (req, res) => {
   }
 
   try {
+    const budget = parseFloat(req.body.budgetAllocated);
+
     const newProject = {
       projectName,
       officeName,
       ministryName,
       description: description || '',
       fiscalYear,
+      budgetAllocated: isNaN(budget) ? 0 : budget,
+      budgetRemaining: isNaN(budget) ? 0 : budget,
       createdAt: new Date()
     };
 
     await db.collection('projects').add(newProject);
+
+    // Automatically create a pending fund request for the new project
+    await db.collection('funds').add({
+      title: `Initial allocation for ${projectName}`,
+      description: 'Automatically generated fund request for new project',
+      amount: newProject.budgetAllocated,
+      status: 'pending',
+      project: projectName,
+      officeName,
+      ministryName,
+      fiscalYear,
+      timestamp: new Date()
+    });
 
     const officeRef = db.collection('offices').where('officeName', '==', officeName);
     const snapshot = await officeRef.get();

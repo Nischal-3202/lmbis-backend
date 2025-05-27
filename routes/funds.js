@@ -48,8 +48,34 @@ router.post('/', async (req, res) => {
 router.put('/:id/approve', async (req, res) => {
   const { id } = req.params;
   try {
-    await db.collection('funds').doc(id).update({ status: 'approved' });
-    res.json({ message: 'Fund request approved' });
+    const fundRef = db.collection('funds').doc(id);
+    const fundDoc = await fundRef.get();
+
+    if (!fundDoc.exists) {
+      return res.status(404).json({ error: 'Fund request not found' });
+    }
+
+    const fundData = fundDoc.data();
+
+    await fundRef.update({ status: 'approved' });
+
+    // Deduct from project's budgetRemaining
+    const projectSnapshot = await db.collection('projects')
+      .where('projectName', '==', fundData.project)
+      .where('officeName', '==', fundData.officeName)
+      .limit(1)
+      .get();
+
+    if (!projectSnapshot.empty) {
+      const projectDoc = projectSnapshot.docs[0];
+      const projectRef = db.collection('projects').doc(projectDoc.id);
+      const currentRemaining = projectDoc.data().budgetRemaining || 0;
+      const updatedRemaining = currentRemaining - fundData.amount;
+
+      await projectRef.update({ budgetRemaining: updatedRemaining });
+    }
+
+    res.json({ message: 'Fund request approved and budget deducted' });
   } catch (error) {
     res.status(500).json({ error: 'Failed to approve request', details: error.message });
   }
