@@ -1,5 +1,3 @@
-
-
 const express = require('express');
 const router = express.Router();
 const admin = require('firebase-admin');
@@ -56,6 +54,17 @@ router.delete('/:id', async (req, res) => {
     const { id } = req.params;
     await db.collection('employees').doc(id).delete();
     res.status(200).json({ message: 'Employee deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get total number of employees in a given office
+router.get('/count/:officeName', async (req, res) => {
+  try {
+    const { officeName } = req.params;
+    const snapshot = await db.collection('employees').where('officeName', '==', officeName).get();
+    res.status(200).json({ count: snapshot.size });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

@@ -13,6 +13,7 @@ const officeRoutes = require('./routes/offices');
 const reportRoutes = require('./routes/reports');
 const projectRoutes = require('./routes/projects');
 const employeeRoutes = require('./routes/employees');
+const fundReductionRoute = require('./routes/fundreduction');
 
 app.use(express.json());
 app.use('/users', userRoutes);
@@ -24,6 +25,7 @@ app.use('/offices', officeRoutes);
 app.use('/reports', reportRoutes);
 app.use('/projects', projectRoutes);
 app.use('/employees', employeeRoutes);
+app.use(fundReductionRoute);
 
 const PORT = 2000;
 app.listen(PORT, () => {
